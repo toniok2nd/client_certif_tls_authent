@@ -8,6 +8,7 @@ parser.add_argument('--cert', default='server/server.crt', help='Path to the SSL
 parser.add_argument('--key', default='server/server.key', help='Path to the SSL key file')
 parser.add_argument('--password', required=True, help='Password to protect the file download')
 parser.add_argument('--file', required=True, help='Full path to the file to serve')
+parser.add_argument('--public', action='store_true', help='Make the interface public (default: False)')
 
 args = parser.parse_args()
 
@@ -34,5 +35,15 @@ iface = gr.Interface(
 )
 
 # Launch the Gradio interface with SSL context
-iface.launch(server_name="0.0.0.0", server_port=7860, ssl_keyfile=args.key, ssl_certfile=args.cert, ssl_verify=False)
+try:
+    iface.launch(
+        server_name="0.0.0.0" if args.public else "localhost",
+        server_port=7860,
+        share=args.public,
+        ssl_keyfile=args.key,
+        ssl_certfile=args.cert,
+        ssl_verify=False
+    )
+except Exception as e:
+    print(f"Error launching Gradio interface: {e}")
 
